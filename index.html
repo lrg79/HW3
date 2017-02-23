@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+	<head>
+		<title> Leah Greenstein lrg79 </title>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="http://d3js.org/topojson.v2.min.js"></script>
+		<link rel="shortcut icon" href="">
+	</head>
+	<body>
+		<div id = "wickam"></div>
+		<div id = "one"></div>
+		<div id = "two"></div>
+		<div id = "three"></div>
+		<div id = "four"></div>
+		<script>
+		//QUESTION 1:
+			function wickam(){
+				var xScale = d3.scaleLinear().range([60,150]).domain([0,200]);
+				var yScale = d3.scaleLinear().range([150,60]).domain([0,300]);
+
+				var svg = d3.select("#wickam")
+					.append("svg")
+					.attr("width", 200)
+					.attr("height", 200);
+
+				svg.append("text")
+					.text("Title")
+					.attr("x", 100)
+					.attr("y", 30);
+
+				svg.append("text")
+					.text("C")
+					.attr("x", 10)
+					.attr("y", 100);
+
+				svg.append("text")
+					.text("A")
+					.attr("x", 100)
+					.attr("y", 180);
+
+				svg.append("circle")
+					.attr("cx", xScale(25))
+					.attr("cy", yScale(11))
+					.attr("r", 5);
+
+				svg.append("circle")
+					.attr("cx", xScale(0))
+					.attr("cy", yScale(0))
+					.attr("r", 5);
+
+				svg.append("rect")
+					.attr("x", xScale(70))
+					.attr("y", yScale(58))
+					.attr("width", 10)
+					.attr("height", 10);
+
+				svg.append("rect")
+					.attr("x", xScale(195))
+					.attr("y", yScale(305))
+					.attr("width", 10)
+					.attr("height", 10);
+
+				var xAxis = d3.axisBottom(xScale);
+				svg.append("g").attr("transform", "translate(0,150)").call(xAxis
+					.ticks(5));
+
+				var yAxis = d3.axisLeft(yScale);
+				svg.append("g").attr("transform", "translate(60,0)").call(yAxis
+					.ticks(5));
+
+				d3.selectAll("rect")
+					.on("click", function(d){
+						d3.select(this).style("fill", "blue");
+					});
+
+				d3.selectAll("circle")
+					.on("click", function(d){
+						d3.select(this).style("fill", "blue");
+					})
+			}
+
+			wickam();
+//QUESTION 2:
+			var wordData;
+			d3.json("words.json", function(error, data){
+				wordData = data;
+				graphB(wordData);
+				graphC(wordData);
+				graphD(wordData);
+			});
+
+			function graphB(wordData){
+				var xRange = d3.scaleLinear().range([30,170]).domain([d3.min(wordData,function(d){
+						return d.rank;
+				}), d3.max(wordData, function(d){
+						return d.rank;
+				})]);
+
+				var yRange = d3.scaleLinear().range([170,30]).domain([d3.min(wordData,function(d){
+					return d.count;
+				}), d3.max(wordData, function(d){
+					return d.count;
+				})]);
+
+				var svg = d3.select("#one")
+					.append("svg")
+					.attr("width", 200)
+					.attr("height", 200);
+
+				wordData.forEach(function(data){
+					svg.append("text")
+					.text(data.word)
+					.attr("x", xRange(data.rank))
+					.attr("y", yRange(data.count));
+
+					var xAxis = d3.axisBottom(xRange);
+					svg.append("g").attr("transform", "translate(0,170)").call(xAxis
+						.ticks(5)
+						.tickFormat(d3.format(".0s")));
+
+					var yAxis = d3.axisLeft(yRange);
+					svg.append("g").attr("transform", "translate(30,0)").call(yAxis
+						.tickFormat(d3.format(".0s")));
+					//This is not a useful visualization at all since we cannot really read anything well
+				});
+			}
+
+			function graphC(wordData){
+				//What is going on?
+				var xRange = d3.scaleLinear().range([30,170]).domain([d3.min(wordData,function(d){
+					return	Math.log(d.rank);
+				}), d3.max(wordData, function(d){
+					return	Math.log(d.rank);
+				})]);
+
+				var yRange = d3.scaleLinear().range([170,30]).domain([d3.min(wordData,function(d){
+					return Math.log(d.count);
+				}), d3.max(wordData, function(d){
+					return Math.log(d.count);
+				})]);
+
+				var svg = d3.select("#two")
+					.append("svg")
+					.attr("width", 200)
+					.attr("height", 200);
+
+				wordData.forEach(function(data){
+					svg.append("text")
+					.text(data.word)
+					.attr("x", xRange(Math.log(data.rank)))
+					.attr("y", yRange(Math.log(data.count)));
+
+					var xAxis = d3.axisBottom(xRange);
+					svg.append("g").attr("transform", "translate(0,170)").call(xAxis);
+
+					var yAxis = d3.axisLeft(yRange);
+					svg.append("g").attr("transform", "translate(30,0)").call(yAxis);
+					//console.log(data.word);
+					//console.log(xRange(data.rank));
+					//console.log(yRange(data.rank));
+				});
+			}
+
+			function graphD(wordData){
+				var xRange = d3.scaleLog().range([50,170]).domain([d3.min(wordData,function(d){
+					return d.rank;
+				}), d3.max(wordData, function(d){
+					return d.rank;
+				})]);
+
+				var yRange = d3.scaleLog().range([170,50]).domain([d3.min(wordData,function(d){
+					return d.count;
+				}), d3.max(wordData, function(d){
+					return d.count;
+				})]);
+
+				var svg = d3.select("#three")
+					.append("svg")
+					.attr("width", 200)
+					.attr("height", 200);
+
+				wordData.forEach(function(data){
+					svg.append("text")
+					.text(data.word)
+					.attr("x", xRange(data.rank))
+					.attr("y", yRange(data.count));
+
+					var xAxis = d3.axisBottom(xRange);
+					svg.append("g").attr("transform", "translate(0,170)").call(xAxis
+						.ticks(5));
+
+					var yAxis = d3.axisLeft(yRange);
+					svg.append("g").attr("transform", "translate(50,0)").call(yAxis
+						.ticks(5));
+				});
+			}
+//QUESTION 3:
+			function trajectory(velocity, angle, inityDis){
+				//velocity in x direction is constant
+				//velocity in y direction is prevoius velocity plus current acceleration
+				//x and y displacements equal to previous value plus .2 * current velocities
+				//array should have as many elements necessary to hit ground (x < 0.0)
+				//will need to set initial conditions
+				//x displacement is 0
+				var initxVelocity = velocity * Math.cos(angle/180*Math.PI);
+				var inityVelocity = velocity * Math.sin(angle/180*Math.PI);
+
+				var initObj = {xDis: 0, yDis: inityDis, yAcc: -9.8/5, xAcc: 0, xVelocity: initxVelocity, yVelocity: inityVelocity};
+
+				var objs = [];
+
+				objs.push(initObj);
+				console.log(initObj);
+
+				while(objs[objs.length - 1].yDis >= 0){
+					var prev = objs[objs.length - 1];
+
+					newxDis = prev.xDis + (0.2 * prev.xVelocity);
+					newyDis = prev.yDis + (0.2 * prev.yVelocity);
+
+					newyVelocity = prev.yVelocity + prev.yAcc;
+
+					var newObj = {xDis: newxDis, yDis: newyDis, yAcc: prev.yAcc, xAcc:prev.xAcc, xVelocity: prev.xVelocity, yVelocity: newyVelocity};
+					console.log(newObj);
+					objs.push(newObj);
+				}
+
+				return objs;
+			}
+
+			function plotTrajectory(){
+				var objs = trajectory(27.4, 45, 1);
+
+				var yThrow = d3.scaleLinear().range([200,10]).domain([d3.min(objs,function(d){
+					return d.yDis;
+				}), d3.max(objs, function(d){
+					return d.yDis;
+				})]);
+
+				var xThrow = d3.scaleLinear().range([0,400]).domain([d3.min(objs, function(d){
+					return d.xDis;
+				}), d3.max(objs, function(d){
+					return d.xDis;
+				})]);
+
+				var data = [];
+				objs.forEach(function(d){
+					var indata = [];
+					indata.push(xThrow(d.xDis));
+					indata.push(yThrow(d.yDis));
+					data.push(indata);
+				});
+
+				var lineGenerator = d3.line();
+				var pathString = lineGenerator(data);
+
+				var groundLine = d3.line();
+				var groundString = groundLine([[0,200], [400,200]]);
+
+				console.log(pathString);
+
+				var svg = d3.select("#four")
+					.append("svg")
+					.attr("width", 400)
+					.attr("height", 200);
+
+				svg.append('path')
+				.attr('d', pathString)
+				.style("stroke-width", 5)
+				.style("opacity", "0.25")
+				.style("fill", "none")
+				.style("stroke", "red");
+
+				svg.append('path')
+				.attr('d', groundString)
+				.style("stroke-width", 5)
+				.style("opacity", "0.25")
+				.style("stroke", "green");
+
+				var lastx = objs[objs.length-1].xDis;
+				var lastxpoint = data[data.length-1];
+				lastxpoint = lastxpoint[0];
+				svg.append("text")
+					.text(lastx)
+					.attr("x", 290)
+					.attr("y", 100);
+			}
+
+			plotTrajectory();
+
+			//QUESTION 4: A LOT OF CODE TAKEN FROM LECTURE
+			var projection = d3.geoMercator().scale(75);
+			var pathGEnerator = d3.geoPath().projection(projection);
+			var rawData;
+			var interestingPoints = [[-77.09, 38.98], [-77.14326260000001,38.9899606], [116.40739499999995, 39.904211]];
+
+			d3.json("world-50m.json", function(error, data){
+				rawData = data;
+				countries = topojson.feature(rawData, rawData.objects.countries);
+				showMap();
+			})
+
+			function showMap(){
+				var width = 960,
+					height = 1160;
+
+				var svg = d3.select("body").append("svg")
+						.attr("width", width)
+						.attr("height", height);
+
+					pathGenerator = d3.geoPath().projection(projection);
+					
+					var paths = svg.selectAll("path.country").data(countries.features);
+					paths.enter().append("path").attr("class", "country")
+					.merge(paths) 
+					.transition().duration(1000)
+					.attr("d", function (country) {
+						return pathGenerator(country);
+					});
+					var xPoints = [];
+					var yPoints = [];
+					svg.selectAll("circle")
+					.data(interestingPoints).enter()
+					.append("circle")
+					.attr("cx", function (d) { 
+						console.log(projection(d)); 
+						xPoints.push(projection(d)[0]);
+						return projection(d)[0]; 
+					})
+					.attr("cy", function (d) { 
+						yPoints.push(projection(d)[1]);
+						return projection(d)[1]; 
+					})
+					.attr("r", "3px")
+					.attr("fill", "red")
+
+					svg.append("text")
+						.text("my favorite restaurant")
+						.attr("x", 100)
+						.attr("y", 100);
+
+					svg.append("line")
+						.style("stroke", "red")
+						.attr("x1", 100)
+						.attr("y1", 100)
+						.attr("x2", xPoints[0])
+						.attr("y2", yPoints[0]);
+
+					svg.append("text")
+						.text("my old school")
+						.attr("x", 100)
+						.attr("y", 150);
+
+					svg.append("line")
+						.style("stroke", "red")
+						.attr("x1", 100)
+						.attr("y1", 150)
+						.attr("x2", xPoints[1])
+						.attr("y2", yPoints[1]);
+
+					svg.append("text")
+						.text("my grandparents live here")
+						.attr("x", 100)
+						.attr("y", 200);
+
+					svg.append("line")
+						.style("stroke", "red")
+						.attr("x1", 100)
+						.attr("y1", 200)
+						.attr("x2", xPoints[2])
+						.attr("y2", yPoints[2]);
+			}		
+		</script>
+	</body>	
+</html>
